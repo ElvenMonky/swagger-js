@@ -15,7 +15,8 @@ export const self = {
 
 // Make an execute, bound to arguments defined in mapTagOperation's callback (cb)
 export function makeExecute(swaggerJs = {}) {
-  return ({pathName, method, operationId}) => (parameters, opts = {}) => {
+  return ({ pathName, method, operation, operationId }) => (requestBody, ...params) => {
+    const parameters = operation.parameters.reduce((acc, x, i) => Object.assign(acc, { [x.name]: params[i] }), {});
     return swaggerJs.execute({
       spec: swaggerJs.spec,
       ...pick(swaggerJs, 'requestInterceptor', 'responseInterceptor', 'userFetch'),
@@ -23,8 +24,8 @@ export function makeExecute(swaggerJs = {}) {
       method,
       parameters,
       operationId,
-      ...opts
-    })
+      requestBody
+    });
   }
 }
 
